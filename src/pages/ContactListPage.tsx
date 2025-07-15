@@ -1,18 +1,32 @@
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {Col, Row} from 'react-bootstrap';
 import {ContactCard} from 'src/components/ContactCard';
 import {FilterForm, FilterFormValues} from 'src/components/FilterForm';
-import { useGetContactsQuery, useGetGroupsQuery } from 'src/store/contacts/contactsSlice';
+// import { useGetContactsQuery, useGetGroupsQuery } from 'src/store/contacts/contactsSlice';
+import { contactsStore } from 'src/store/contacts/contacts';
+import { groupsStore } from 'src/store/groups/groups';
+import { observer } from 'mobx-react-lite';
+import { toJS } from 'mobx';
 
-export const ContactListPage = () => {
-  const { data: contacts } = useGetContactsQuery();
-  const { data: groups } = useGetGroupsQuery();
+export const ContactListPage = observer(() => {
+
+  // const { data: contacts } = useGetContactsQuery();
+  // const { data: groups } = useGetGroupsQuery();
   const [filterValues, setFilterValues] = useState<Partial<FilterFormValues>>({});
+
+  useEffect(() => {
+   contactsStore.getСontacts()
+   groupsStore.getGroups()
+  }, [])
+
+  const contacts = toJS(contactsStore.contacts)
+  const groups = toJS(groupsStore.groups)
+
 
   const filteredContacts = useMemo(() => {
     if (!contacts) return [];
 
-    return contacts.filter(contact => {
+    return contacts && contacts.filter(contact => {
       if (filterValues.name) {
         const fvName = filterValues.name.toLowerCase();
         if (contact.name.toLowerCase().indexOf(fvName) === -1) return false;
@@ -34,7 +48,7 @@ export const ContactListPage = () => {
   return (
     <Row xxl={1}>
       <Col className="mb-3">
-        <FilterForm groupContactsList={groups && groups} initialValues={{}} onSubmit={onSubmit} />
+        <FilterForm groupContactsList={groups} initialValues={{}} onSubmit={onSubmit} />
       </Col>
       <Col>
         <Row xxl={4} className="g-4">
@@ -47,4 +61,4 @@ export const ContactListPage = () => {
       </Col>
     </Row>
   );
-}
+})

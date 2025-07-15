@@ -1,18 +1,17 @@
-import React, {memo} from 'react';
 import {Card, Button} from 'react-bootstrap';
 import {Link} from 'react-router-dom';
 import {GroupContactsDto} from 'src/types/dto/GroupContactsDto';
-import{ContactDto} from 'src/types/dto/ContactDto';
-import {RootState} from 'src/store/store';
-import {addToFavorites, removeFromFavorites} from 'src/store/favorit/favoriteSlice'
-import {useDispatch, useSelector} from 'react-redux';
+// import {addToFavorites, removeFromFavorites} from 'src/store/favorit/favoriteSlice'
+// import {useDispatch, useSelector} from 'react-redux';
+import { favoriteStore } from 'src/store/favorite/favorite';
+import { observer } from 'mobx-react-lite';
 
 interface GroupContactsCardProps {
   groupContacts: GroupContactsDto,
   withLink?: boolean
 }
 
-export const GroupContactsCard = memo<GroupContactsCardProps>(({
+export const GroupContactsCard = observer<GroupContactsCardProps>(({
     groupContacts,
     groupContacts: {
       id,
@@ -22,18 +21,29 @@ export const GroupContactsCard = memo<GroupContactsCardProps>(({
       contactIds
     }, withLink
   }) => {
-        const dispatch = useDispatch();
-        const isFavorite:(ContactDto | GroupContactsDto | undefined) = useSelector((state: RootState) => 
-        state.favorites.favorites.find(fav => fav.id === id)
-      );
     
-      const toggleFavorite = () => {
-        if (isFavorite) {
-          dispatch(removeFromFavorites(id));
-        } else {
-          dispatch(addToFavorites(groupContacts));
-        }
-      };
+      //   const dispatch = useDispatch();
+      //   const isFavorite:(ContactDto | GroupContactsDto | undefined) = useSelector((state: RootState) => 
+      //   state.favorites.favorites.find(fav => fav.id === id)
+      // );
+    
+      // const toggleFavorite = () => {
+      //   if (isFavorite) {
+      //     dispatch(removeFromFavorites(id));
+      //   } else {
+      //     dispatch(addToFavorites(groupContacts));
+      //   }
+      // };
+
+    const isFavorite = favoriteStore.favorites.find(fav => fav.id === id)
+      
+    const toggleFavorite = () => {
+      if(isFavorite) {
+        favoriteStore.removeFromFavorites(id)
+      } else {
+        favoriteStore.addToFavorites(groupContacts)
+      }
+    }
     return (
       <Card key={id}>
         <Card.Header>

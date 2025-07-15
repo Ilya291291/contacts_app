@@ -1,18 +1,17 @@
-import React, {memo} from 'react';
 import {ContactDto} from 'src/types/dto/ContactDto';
-import {GroupContactsDto} from 'src/types/dto/GroupContactsDto';
-import {RootState} from 'src/store/store';
 import {Button, Card, ListGroup} from 'react-bootstrap';
 import {Link} from 'react-router-dom';
-import {useDispatch, useSelector} from 'react-redux';
-import { addToFavorites, removeFromFavorites } from 'src/store/favorit/favoriteSlice'
+import { observer } from 'mobx-react-lite';
+import { favoriteStore } from 'src/store/favorite/favorite';
+// import {useDispatch, useSelector} from 'react-redux';
+// import { addToFavorites, removeFromFavorites } from 'src/store/favorit/favoriteSlice'
 
 interface ContactCardProps {
   contact: ContactDto,
   withLink?: boolean
 }
 
-export const ContactCard = memo<ContactCardProps>(({
+export const ContactCard = observer<ContactCardProps>(({
     contact,
     contact: {
       photo,
@@ -24,18 +23,27 @@ export const ContactCard = memo<ContactCardProps>(({
     }, withLink
   }) => {
 
-    const dispatch = useDispatch();
-    const isFavorite: (ContactDto | GroupContactsDto | undefined) = useSelector((state: RootState) => 
-    state?.favorites.favorites.find(fav => fav.id === id)
-  );
+    // const dispatch = useDispatch();
+  //   const isFavorite: (ContactDto | GroupContactsDto | undefined) = useSelector((state: RootState) => 
+  //   state?.favorites.favorites.find(fav => fav.id === id)
+  // );
+
+  const isFavorite = favoriteStore.favorites.find(fav => fav.id === id)
 
   const toggleFavorite = () => {
-    if (isFavorite) {
-      dispatch(removeFromFavorites(id));
+    if(isFavorite) {
+      favoriteStore.removeFromFavorites(id)
     } else {
-      dispatch(addToFavorites(contact));
+      favoriteStore.addToFavorites(contact)
     }
-  };
+  }
+  // const toggleFavorite = () => {
+  //   if (isFavorite) {
+  //     dispatch(removeFromFavorites(id));
+  //   } else {
+  //     dispatch(addToFavorites(contact));
+  //   }
+  // };
 
     return (
       <Card key={id}>
